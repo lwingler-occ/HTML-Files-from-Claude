@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immigration Systems & Economic Impact Interactive</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        h2 {
+            color: #4a5568;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        /* Comparison Table Styles */
+        .comparison-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 20px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .comparison-table tr:hover td {
+            background-color: #f7fafc;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .country-header {
+            font-weight: bold;
+            background-color: #edf2f7;
+        }
+        
+        .metric-label {
+            font-weight: 600;
+            color: #4a5568;
+            background-color: #f7fafc;
+            width: 200px;
+        }
+        
+        /* Decision Tree Styles */
+        .decision-tree {
+            margin-top: 40px;
+        }
+        
+        .decision-node {
+            background: #f7fafc;
+            border: 2px solid #cbd5e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .decision-node.active {
+            background: #edf2f7;
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        .decision-question {
+            font-size: 1.2em;
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .decision-options {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .decision-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .decision-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .decision-btn:active {
+            transform: translateY(0);
+        }
+        
+        .impact-result {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .impact-result.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .impact-category {
+            margin: 15px 0;
+        }
+        
+        .impact-category h4 {
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 5px;
+        }
+        
+        .impact-item {
+            margin: 8px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .impact-item::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+        }
+        
+        .reset-btn {
+            padding: 12px 30px;
+            background: #718096;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 20px auto;
+            display: block;
+            transition: all 0.3s ease;
+        }
+        
+        .reset-btn:hover {
+            background: #4a5568;
+            transform: translateY(-2px);
+        }
+        
+        .stat-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            background: #667eea;
+            color: white;
+            border-radius: 15px;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+        
+        .pro-con {
+            display: flex;
+            gap: 20px;
+            margin: 10px 0;
+        }
+        
+        .pro, .con {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .pro {
+            background: #c6f6d5;
+            border-left: 4px solid #48bb78;
+        }
+        
+        .con {
+            background: #fed7d7;
+            border-left: 4px solid #f56565;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Immigration Systems & Economic Impact Analysis</h1>
+        
+        <h2>📊 Immigration Systems Comparison</h2>
+        
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th class="metric-label">System Feature</th>
+                    <th>🇺🇸 United States</th>
+                    <th>🇨🇦 Canada</th>
+                    <th>🇦🇺 Australia</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="metric-label">Primary Focus</td>
+                    <td><strong>Family Reunification</strong> <span class="stat-badge">66%</span><br>Prioritizes bringing families together</td>
+                    <td><strong>Economic/Skills-Based</strong> <span class="stat-badge">58%</span><br>Points system favoring education & skills</td>
+                    <td><strong>Skills & Employment</strong> <span class="stat-badge">68%</span><br>Employer sponsorship & skilled migration</td>
+                </tr>
+                <tr>
+                    <td class="metric-label">Selection Method</td>
+                    <td>Category-based quotas with preference system</td>
+                    <td>Comprehensive Ranking System (CRS) - points for age, education, language, work experience</td>
+                    <td>SkillSelect system - Expression of Interest with points test</td>
+                </tr>
+                <tr>
+                    <td class="metric-label">Annual Immigration Rate</td>
+                    <td>~1.1 million (0.3% of population)</td>
+                    <td>~400,000 (1.1% of population)</td>
+                    <td>~190,000 (0.7% of population)</td>
+                </tr>
+                <tr>
+                    <td class="metric-label">Top Categories</td>
+                    <td>1. Family-sponsored (66%)<br>2. Employment (12%)<br>3. Refugees (13%)<br>4. Diversity lottery (5%)</td>
+                    <td>1. Economic class (58%)<br>2. Family class (27%)<br>3. Refugees (13%)<br>4. Other (2%)</td>
+                    <td>1. Skilled workers (68%)<br>2. Family (30%)<br>3. Humanitarian (2%)</td>
+                </tr>
+                <tr>
+                    <td class="metric-label">Education Requirements</td>
+                    <td>No minimum for most categories</td>
+                    <td>Points awarded for education (up to 150 points for PhD)</td>
+                    <td>Minimum vocational qualification for most skilled visas</td>
+                </tr>
+                <tr>
+                    <td class="metric-label">Language Requirements</td>
+                    <td>Basic English for naturalization only</td>
+                    <td>Mandatory language testing (English/French) - minimum CLB 7</td>
+                    <td>Competent English required (IELTS 6.0+)</td>
+                </tr>
+                <tr>
+                    <td class="metric-label">Path to Citizenship</td>
+                    <td>5 years as permanent resident</td>
+                    <td>3 years out of 5 as permanent resident</td>
+                    <td>4 years as permanent resident</td>
+                </tr>
+                <tr>
+                    <td class="metric-label">Economic Impact</td>
+                    <td><div class="pro-con">
+                        <div class="pro">✓ Diverse skill levels<br>✓ Strong family networks</div>
+                        <div class="con">✗ Variable education levels<br>✗ Higher initial welfare use</div>
+                    </div></td>
+                    <td><div class="pro-con">
+                        <div class="pro">✓ High education levels<br>✓ Quick labor market integration</div>
+                        <div class="con">✗ May not fill all labor needs</div>
+                    </div></td>
+                    <td><div class="pro-con">
+                        <div class="pro">✓ Employer-ready workers<br>✓ High tax contribution</div>
+                        <div class="con">✗ Skills shortage in some sectors</div>
+                    </div></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h2>🎯 Economic Impact Decision Tree</h2>
+        
+        <div class="decision-tree">
+            <div class="decision-node active" id="node-1">
+                <div class="decision-question">
+                    A foreign company wants to build a factory in your town that will employ 500 people and bring 50 skilled foreign workers. What's your primary concern as a town council advisor?
+                </div>
+                <div class="decision-options">
+                    <button class="decision-btn" onclick="makeDecision('wages')">Impact on Local Wages</button>
+                    <button class="decision-btn" onclick="makeDecision('infrastructure')">Infrastructure Needs</button>
+                    <button class="decision-btn" onclick="makeDecision('business')">Effect on Existing Businesses</button>
+                    <button class="decision-btn" onclick="makeDecision('community')">Long-term Community Changes</button>
+                </div>
+            </div>
+            
+            <div id="wages-path" style="display: none;">
+                <div class="decision-node active">
+                    <div class="decision-question">
+                        You're focused on wage impacts. What specific aspect concerns you most?
+                    </div>
+                    <div class="decision-options">
+                        <button class="decision-btn" onclick="showImpact('wages-low')">Low-skilled worker wages</button>
+                        <button class="decision-btn" onclick="showImpact('wages-high')">High-skilled worker wages</button>
+                        <button class="decision-btn" onclick="showImpact('wages-overall')">Overall wage distribution</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="infrastructure-path" style="display: none;">
+                <div class="decision-node active">
+                    <div class="decision-question">
+                        Infrastructure is your priority. Which area needs most attention?
+                    </div>
+                    <div class="decision-options">
+                        <button class="decision-btn" onclick="showImpact('infra-housing')">Housing & Real Estate</button>
+                        <button class="decision-btn" onclick="showImpact('infra-schools')">Schools & Education</button>
+                        <button class="decision-btn" onclick="showImpact('infra-transport')">Transportation & Utilities</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="business-path" style="display: none;">
+                <div class="decision-node active">
+                    <div class="decision-question">
+                        You're analyzing business impacts. What's your main focus?
+                    </div>
+                    <div class="decision-options">
+                        <button class="decision-btn" onclick="showImpact('biz-competition')">Competition for Resources</button>
+                        <button class="decision-btn" onclick="showImpact('biz-suppliers')">Supply Chain Effects</button>
+                        <button class="decision-btn" onclick="showImpact('biz-multiplier')">Multiplier Effects</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="community-path" style="display: none;">
+                <div class="decision-node active">
+                    <div class="decision-question">
+                        Long-term community impact is key. What aspect matters most?
+                    </div>
+                    <div class="decision-options">
+                        <button class="decision-btn" onclick="showImpact('comm-culture')">Cultural Integration</button>
+                        <button class="decision-btn" onclick="showImpact('comm-growth')">Population Growth</button>
+                        <button class="decision-btn" onclick="showImpact('comm-fiscal')">Fiscal Balance</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="impact-result" class="impact-result">
+                <!-- Results will be dynamically inserted here -->
+            </div>
+            
+            <button class="reset-btn" onclick="resetDecisionTree()" style="display: none;" id="reset-button">
+                Start Over with Different Concern
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        const impacts = {
+            'wages-low': {
+                title: 'Impact on Low-Skilled Worker Wages',
+                content: `
+                    <div class="impact-category">
+                        <h4>Short-term Effects (0-2 years)</h4>
+                        <div class="impact-item">450 new factory jobs, but 350 filled by locals competing with existing workers</div>
+                        <div class="impact-item">Estimated 3-5% wage decrease in manufacturing and service sectors</div>
+                        <div class="impact-item">Increased competition for entry-level positions</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Long-term Effects (3+ years)</h4>
+                        <div class="impact-item">Wages recover as economy expands (multiplier effect creates 750 indirect jobs)</div>
+                        <div class="impact-item">Workers gain new skills through factory training programs</div>
+                        <div class="impact-item">Overall employment increases by 1,250 jobs</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Policy Recommendations</h4>
+                        <div class="impact-item">Negotiate local hiring quotas (70% minimum)</div>
+                        <div class="impact-item">Establish job training partnerships with community college</div>
+                        <div class="impact-item">Monitor wage trends quarterly</div>
+                    </div>
+                `
+            },
+            'wages-high': {
+                title: 'Impact on High-Skilled Worker Wages',
+                content: `
+                    <div class="impact-category">
+                        <h4>Immediate Effects</h4>
+                        <div class="impact-item">50 foreign skilled workers increase talent pool by 15%</div>
+                        <div class="impact-item">Specialized skills may command premium wages (+10-15%)</div>
+                        <div class="impact-item">Knowledge transfer benefits local professionals</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Market Dynamics</h4>
+                        <div class="impact-item">Competition for engineers and managers intensifies</div>
+                        <div class="impact-item">Local skilled workers gain bargaining power</div>
+                        <div class="impact-item">Tech sector wages rise 8% due to spillover demand</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Strategic Opportunities</h4>
+                        <div class="impact-item">Create mentorship programs pairing foreign and local experts</div>
+                        <div class="impact-item">Develop innovation hub around factory expertise</div>
+                        <div class="impact-item">Attract additional high-tech employers</div>
+                    </div>
+                `
+            },
+            'wages-overall': {
+                title: 'Overall Wage Distribution Effects',
+                content: `
+                    <div class="impact-category">
+                        <h4>Income Distribution Changes</h4>
+                        <div class="impact-item">Gini coefficient increases by 0.02 (slight increase in inequality)</div>
+                        <div class="impact-item">Median household income rises 4% over 5 years</div>
+                        <div class="impact-item">Bottom quintile sees 2% wage decrease, top quintile 6% increase</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Sectoral Impacts</h4>
+                        <div class="impact-item">Manufacturing: +$2.50/hour average after 3 years</div>
+                        <div class="impact-item">Services: -$0.75/hour initially, recovers in year 2</div>
+                        <div class="impact-item">Professional services: +$5/hour due to increased demand</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Mitigation Strategies</h4>
+                        <div class="impact-item">Implement living wage ordinance tied to factory tax breaks</div>
+                        <div class="impact-item">Create workforce development fund ($2M annually)</div>
+                        <div class="impact-item">Establish wage monitoring dashboard for transparency</div>
+                    </div>
+                `
+            },
+            'infra-housing': {
+                title: 'Housing & Real Estate Impact',
+                content: `
+                    <div class="impact-category">
+                        <h4>Housing Demand Surge</h4>
+                        <div class="impact-item">550 new households need housing (500 workers + 50 families)</div>
+                        <div class="impact-item">Rental prices increase 12-18% in first year</div>
+                        <div class="impact-item">Home prices rise 8% annually for 3 years</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Supply Response</h4>
+                        <div class="impact-item">300 new housing units needed immediately</div>
+                        <div class="impact-item">Construction boom creates 200 additional jobs</div>
+                        <div class="impact-item">Apartment vacancy rate drops from 8% to 2%</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Action Plan</h4>
+                        <div class="impact-item">Fast-track permits for 500+ unit development</div>
+                        <div class="impact-item">Require 15% affordable housing in new developments</div>
+                        <div class="impact-item">Partner with factory for employee housing assistance program</div>
+                    </div>
+                `
+            },
+            'infra-schools': {
+                title: 'Educational System Impact',
+                content: `
+                    <div class="impact-category">
+                        <h4>Student Enrollment Changes</h4>
+                        <div class="impact-item">75-100 new K-12 students expected</div>
+                        <div class="impact-item">30% need English language learning support</div>
+                        <div class="impact-item">Class sizes increase by 2-3 students average</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Resource Requirements</h4>
+                        <div class="impact-item">Need 4-5 additional teachers</div>
+                        <div class="impact-item">ESL program expansion costs $300,000 annually</div>
+                        <div class="impact-item">One elementary school reaches capacity</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Educational Opportunities</h4>
+                        <div class="impact-item">Factory partnership for STEM programs</div>
+                        <div class="impact-item">International cultural exchange enrichment</div>
+                        <div class="impact-item">Vocational training alignment with factory needs</div>
+                    </div>
+                `
+            },
+            'infra-transport': {
+                title: 'Transportation & Utilities Impact',
+                content: `
+                    <div class="impact-category">
+                        <h4>Traffic & Transportation</h4>
+                        <div class="impact-item">1,000 additional daily vehicle trips</div>
+                        <div class="impact-item">Main arterial roads see 25% traffic increase</div>
+                        <div class="impact-item">Public transit ridership up 15%</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Utility Demands</h4>
+                        <div class="impact-item">Water usage increases 8% citywide</div>
+                        <div class="impact-item">Electrical grid needs $2M upgrade</div>
+                        <div class="impact-item">Wastewater treatment at 85% capacity</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Infrastructure Investments</h4>
+                        <div class="impact-item">$5M road improvement project required</div>
+                        <div class="impact-item">Add two bus routes to factory ($400K/year)</div>
+                        <div class="impact-item">Utility expansion funded by development fees</div>
+                    </div>
+                `
+            },
+            'biz-competition': {
+                title: 'Business Competition for Resources',
+                content: `
+                    <div class="impact-category">
+                        <h4>Labor Market Competition</h4>
+                        <div class="impact-item">Existing manufacturers lose 10% of workforce to higher wages</div>
+                        <div class="impact-item">Small businesses struggle to match benefits packages</div>
+                        <div class="impact-item">Skilled trades shortage intensifies</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Resource Constraints</h4>
+                        <div class="impact-item">Commercial real estate prices rise 20%</div>
+                        <div class="impact-item">Competition for contractors delays other projects</div>
+                        <div class="impact-item">Business services stretched thin</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Adaptation Strategies</h4>
+                        <div class="impact-item">Create business retention incentive program</div>
+                        <div class="impact-item">Facilitate workforce sharing agreements</div>
+                        <div class="impact-item">Establish small business support fund</div>
+                    </div>
+                `
+            },
+            'biz-suppliers': {
+                title: 'Supply Chain Effects',
+                content: `
+                    <div class="impact-category">
+                        <h4>Local Supplier Opportunities</h4>
+                        <div class="impact-item">$10M annual local procurement potential</div>
+                        <div class="impact-item">15-20 local businesses become suppliers</div>
+                        <div class="impact-item">Supply chain creates 150 indirect jobs</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Business Ecosystem Growth</h4>
+                        <div class="impact-item">3-5 new B2B service companies established</div>
+                        <div class="impact-item">Logistics sector expands 30%</div>
+                        <div class="impact-item">Professional services revenue up 25%</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Development Initiatives</h4>
+                        <div class="impact-item">Create supplier diversity program</div>
+                        <div class="impact-item">Establish business incubator for suppliers</div>
+                        <div class="impact-item">Organize supply chain networking events</div>
+                    </div>
+                `
+            },
+            'biz-multiplier': {
+                title: 'Economic Multiplier Effects',
+                content: `
+                    <div class="impact-category">
+                        <h4>Direct Economic Impact</h4>
+                        <div class="impact-item">$30M annual payroll injection</div>
+                        <div class="impact-item">$50M factory operational spending</div>
+                        <div class="impact-item">$5M annual tax revenue</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Indirect Effects (Multiplier: 2.5x)</h4>
+                        <div class="impact-item">$75M additional economic activity</div>
+                        <div class="impact-item">750 indirect jobs created</div>
+                        <div class="impact-item">25 new retail/service businesses open</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Long-term Growth</h4>
+                        <div class="impact-item">GDP growth rate increases 2.5% annually</div>
+                        <div class="impact-item">Downtown revitalization accelerates</div>
+                        <div class="impact-item">Property values appreciate 40% over 5 years</div>
+                    </div>
+                `
+            },
+            'comm-culture': {
+                title: 'Cultural Integration Impact',
+                content: `
+                    <div class="impact-category">
+                        <h4>Demographic Changes</h4>
+                        <div class="impact-item">Foreign-born population increases from 5% to 8%</div>
+                        <div class="impact-item">4-5 new ethnic restaurants and shops open</div>
+                        <div class="impact-item">Language diversity increases (8 new languages)</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Integration Challenges & Opportunities</h4>
+                        <div class="impact-item">Need for translation services in public facilities</div>
+                        <div class="impact-item">Cultural festivals enrich community calendar</div>
+                        <div class="impact-item">International sister city relationships develop</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Community Building</h4>
+                        <div class="impact-item">Establish multicultural welcome center</div>
+                        <div class="impact-item">Create cultural liaison positions in schools</div>
+                        <div class="impact-item">Develop international business district</div>
+                    </div>
+                `
+            },
+            'comm-growth': {
+                title: 'Population Growth Impact',
+                content: `
+                    <div class="impact-category">
+                        <h4>Demographic Shifts</h4>
+                        <div class="impact-item">Population increases 8% (2,000 people) in 3 years</div>
+                        <div class="impact-item">Working-age population ratio improves</div>
+                        <div class="impact-item">Birth rate increases, reversing decline</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Urban Development</h4>
+                        <div class="impact-item">Two new neighborhoods developed</div>
+                        <div class="impact-item">Downtown occupancy rate reaches 95%</div>
+                        <div class="impact-item">Suburban sprawl accelerates</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Planning Priorities</h4>
+                        <div class="impact-item">Update comprehensive plan for 30,000 residents</div>
+                        <div class="impact-item">Implement smart growth principles</div>
+                        <div class="impact-item">Preserve green spaces and community character</div>
+                    </div>
+                `
+            },
+            'comm-fiscal': {
+                title: 'Fiscal Balance Impact',
+                content: `
+                    <div class="impact-category">
+                        <h4>Revenue Increases</h4>
+                        <div class="impact-item">Property tax revenue up $3M annually</div>
+                        <div class="impact-item">Sales tax receipts increase 18%</div>
+                        <div class="impact-item">Business licenses and fees up $500K</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Expenditure Pressures</h4>
+                        <div class="impact-item">School costs increase $2M annually</div>
+                        <div class="impact-item">Infrastructure maintenance up $1.5M</div>
+                        <div class="impact-item">Public safety needs 10 additional personnel</div>
+                    </div>
+                    <div class="impact-category">
+                        <h4>Fiscal Strategy</h4>
+                        <div class="impact-item">Net fiscal benefit: +$1.5M annually after year 3</div>
+                        <div class="impact-item">Establish infrastructure impact fees</div>
+                        <div class="impact-item">Create tax increment financing district</div>
+                    </div>
+                `
+            }
+        };
+        
+        function makeDecision(choice) {
+            // Hide the first node
+            document.getElementById('node-1').style.display = 'none';
+            
+            // Show the chosen path
+            document.getElementById(choice + '-path').style.display = 'block';
+            
+            // Scroll to the new content
+            document.getElementById(choice + '-path').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function showImpact(impactType) {
+            const resultDiv = document.getElementById('impact-result');
+            const impact = impacts[impactType];
+            
+            resultDiv.innerHTML = `
+                <h3>📊 ${impact.title}</h3>
+                ${impact.content}
+            `;
+            
+            resultDiv.classList.add('show');
+            document.getElementById('reset-button').style.display = 'block';
+            
+            // Scroll to results
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function resetDecisionTree() {
+            // Hide all paths
+            document.getElementById('wages-path').style.display = 'none';
+            document.getElementById('infrastructure-path').style.display = 'none';
+            document.getElementById('business-path').style.display = 'none';
+            document.getElementById('community-path').style.display = 'none';
+            
+            // Hide results
+            document.getElementById('impact-result').classList.remove('show');
+            document.getElementById('reset-button').style.display = 'none';
+            
+            // Show first node
+            document.getElementById('node-1').style.display = 'block';
+            
+            // Scroll to top
+            document.getElementById('node-1').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
